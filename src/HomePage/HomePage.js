@@ -1,7 +1,7 @@
 import React from 'react'
 import { Table } from 'antd';
 import { observer, inject } from 'mobx-react'
-
+import InputForm from './components/InputForm'
 const columns = [
   {
     title: 'Name',
@@ -25,19 +25,17 @@ class HomePage extends React.Component {
   componentDidMount() {
     const { rootStore } = this.props
     const { pokemonStore } = rootStore
-    fetch('https://pokeapi.co/api/v2/pokemon/')
-      .then( response => response.json())
-      .then( data => (pokemonStore.setDataList({dataList:data.results})));
+    pokemonStore.fetchData()
+    // fetch('https://pokeapi.co/api/v2/pokemon/?' + pokemonStore.getLimit + '&offset=' + pokemonStore.getOffset)
+    //   .then( response => response.json())
+    //   .then( data => (pokemonStore.setDataList({dataList:data.results})));
   }
   
   handleOnClickRow = (name) => {
     const { rootStore } = this.props
     const { routerStore } = rootStore
-    let path = "/" + name
-    console.log(12, name)
-    window.history.pushState({name},"",name)
-    //routerStore.setActivePage(1);
-    console.log(2);
+    let path = "/" + name.name
+    this.props.history.push(path)
   }
   
   render() {
@@ -45,11 +43,15 @@ class HomePage extends React.Component {
     const { pokemonStore } = rootStore
     const { dataList } = pokemonStore
     return (
-      <Table onRow={(record, rowIndex) => {
+      <div>
+        <InputForm/>
+        <Table pagination={{ pageSize: 20 }} onRow={(record, rowIndex) => {
         return {
           onClick: event => this.handleOnClickRow({name: record.name}), // click row
         };
       }} columns={columns} dataSource={dataList} size="small" />
+      </div>
+      
     )
   }
 }

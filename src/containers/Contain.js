@@ -12,7 +12,7 @@ class Contain extends React.Component {
     const { routerStore } = rootStore
     const { activePage } = routerStore
     return (
-      <Router>
+      <Router history={window.history}>
         <Switch>
           <Route path="/" exact component={HomePage} />
           <Route path="/:name" exact component={DetailPage} />
