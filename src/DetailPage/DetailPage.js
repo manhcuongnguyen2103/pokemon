@@ -2,11 +2,16 @@ import React from 'react'
 import { observer, inject } from 'mobx-react'
 import Sprites from './components/Sprites'
 import Stats from './components/Stats'
-import { Tabs, Descriptions, Divider   } from 'antd';
+import { Tabs, Divider, Alert } from 'antd';
 import { toJS } from 'mobx'
 
 const { TabPane } = Tabs;
 class DetailPage extends React.Component {
+
+  showError = ({error}) =>
+  {
+    return <Alert message="Error Text" type="error" />
+  }
 
   componentDidMount() {
     const { rootStore } = this.props
@@ -15,7 +20,15 @@ class DetailPage extends React.Component {
     let url = 'https://pokeapi.co/api/v2/pokemon/' + name
     fetch(url)
       .then( response => response.json())
-      .then( data => (pokemonStore.setCurrentPoke({sprites: data.sprites, stats:data.stats})));
+      .then( data => (pokemonStore.setCurrentPoke({sprites: data.sprites, stats:data.stats})))
+      .catch(function(error) {
+        const isConfirmed =  alert(error.message)
+        //lam lai async -> !@#@$#%^
+        // if (isConfirmed) {
+        //   await this.props.history.push('/')
+        // }
+      });
+      
   }
 
   render() {
@@ -34,8 +47,6 @@ class DetailPage extends React.Component {
     if(stats)
     {
       stas = Object.entries(stats)
-      
-      console.log(12, stas)
     }
     
     return (
