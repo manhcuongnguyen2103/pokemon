@@ -1,4 +1,4 @@
-import {observable, decorate, action} from "mobx"
+import {observable, decorate, action, comparer, computed} from "mobx"
 
 class RouterStore{
     constructor(rootStore){
@@ -10,9 +10,15 @@ class RouterStore{
     setActivePage = (pageIndex) => {
         this.activePage = pageIndex
     }
+
+    get getActivePage(){
+        return this.activePage
+    }
 }
 
 export default decorate(RouterStore, {
+    activePage: observable,
     activeUrl: observable,
-    setActivePage: action
+    setActivePage: action,
+    getActivePage:computed
 })

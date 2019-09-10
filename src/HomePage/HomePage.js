@@ -1,7 +1,6 @@
 import React from 'react'
 import { Table } from 'antd';
 import { observer, inject } from 'mobx-react'
-import InputForm from './components/InputForm'
 const columns = [
   {
     title: 'Name',
@@ -18,40 +17,78 @@ const data = [
 
 class HomePage extends React.Component {
 
+  state = {
+    data: [],
+    pagination: {},
+    loading: false,
+  };
+
   constructor(props) {
     super(props);
   }
 
   componentDidMount() {
     const { rootStore } = this.props
-    const { pokemonStore } = rootStore
-    pokemonStore.fetchData()
-    // fetch('https://pokeapi.co/api/v2/pokemon/?' + pokemonStore.getLimit + '&offset=' + pokemonStore.getOffset)
-    //   .then( response => response.json())
-    //   .then( data => (pokemonStore.setDataList({dataList:data.results})));
+    const { routerStore } = rootStore
+    routerStore.setActivePage(0)
+    this.fetch();  
   }
   
-  handleOnClickRow = (name) => {
+  fetch = (params = {}) => {
     const { rootStore } = this.props
-    const { routerStore } = rootStore
+    const { pokemonStore } = rootStore
+    this.setState({ loading: true });
+    pokemonStore.setParams({limit: 10, offset: (params.page - 1) * 10})
+    fetch('https://pokeapi.co/api/v2/pokemon/?limit=' + pokemonStore.getLimit + '&offset=' + pokemonStore.getOffset)
+      .then( response => response.json())
+      .then( data => {
+      const pagination = { ...this.state.pagination };
+      pagination.total = data.count;
+      this.setState({
+        loading: false,
+        data: data.results,
+        pagination,
+      });
+      pokemonStore.setDataList({dataList:data.results})
+    });
+  };
+
+  handleTableChange = (pagination) => {
+    const pager = { ...this.state.pagination };
+    pager.current = pagination.current;
+    this.setState({
+      pagination: pager,
+    });
+    this.fetch({
+      page: pagination.current,
+    });
+  };
+
+  handleOnClickRow = (name) => {
     let path = "/" + name.name
     this.props.history.push(path)
+    const { rootStore } = this.props
+    const { routerStore } = rootStore
+    routerStore.setActivePage(1)
   }
   
   render() {
     const { rootStore } = this.props
-    const { pokemonStore } = rootStore
+    const { pokemonStore, routerStore } = rootStore
     const { dataList } = pokemonStore
+    
     return (
-      <div>
-        <InputForm/>
-        <Table pagination={{ pageSize: 20 }} onRow={(record, rowIndex) => {
-        return {
-          onClick: event => this.handleOnClickRow({name: record.name}), // click row
-        };
-      }} columns={columns} dataSource={dataList} size="small" />
-      </div>
-      
+      <Table
+        columns={columns}
+        dataSource={dataList}
+        pagination={this.state.pagination}
+        loading={this.state.loading}
+        onChange={this.handleTableChange}
+        onRow={(record, rowIndex) => {
+          return {
+            onClick: event => this.handleOnClickRow({name: record.name}), // click row
+          };}}
+      />
     )
   }
 }

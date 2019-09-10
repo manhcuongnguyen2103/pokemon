@@ -10,24 +10,22 @@ class PokemonStore{
 
     currentPoke = {}
 
-    limit = 20
+    limit = 10
     offset = 0
 
     setDataList = ({dataList}) =>{
-        dataList.map((data) => {data.key = data.name})
-
+        dataList.forEach((data) => {data.key = data.name})
         this.dataList = dataList;
     }
 
-    setCurrentPoke = ({sprites, stats}) =>{
-        let data = {sprites, stats }
+    setCurrentPoke = ({sprites, stats, name}) =>{
+        let data = {sprites, stats, name }
         this.currentPoke = data;
     }
 
     setParams = ({limit, offset}) =>{
         this.limit = limit;
         this.offset = offset;
-        console.log(33, limit, offset);
     }
 
     get getSprites(){
@@ -36,6 +34,10 @@ class PokemonStore{
 
     get getStats(){
         return this.currentPoke.stats
+    }
+
+    get getName(){
+        return this.currentPoke.name
     }
 
     get getLimit(){
@@ -64,6 +66,7 @@ export default decorate(PokemonStore, {
     setCurrentPoket: action,
     getStats: computed,
     getSprites: computed,
+    getName: computed,
     getLimit: computed,
     getOffset: computed
 })

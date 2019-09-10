@@ -15,18 +15,15 @@ class DetailPage extends React.Component {
 
   componentDidMount() {
     const { rootStore } = this.props
-    const { pokemonStore } = rootStore
+    const { pokemonStore, routerStore } = rootStore
+    routerStore.setActivePage(1)
     const { name } = this.props.match.params
     let url = 'https://pokeapi.co/api/v2/pokemon/' + name
     fetch(url)
       .then( response => response.json())
-      .then( data => (pokemonStore.setCurrentPoke({sprites: data.sprites, stats:data.stats})))
+      .then( data => (pokemonStore.setCurrentPoke({sprites: data.sprites, stats:data.stats, name: name})))
       .catch(function(error) {
         const isConfirmed =  alert(error.message)
-        //lam lai async -> !@#@$#%^
-        // if (isConfirmed) {
-        //   await this.props.history.push('/')
-        // }
       });
       
   }
@@ -35,6 +32,7 @@ class DetailPage extends React.Component {
     const { name } = this.props.match.params
     const { rootStore } = this.props
     const { pokemonStore } = rootStore
+    
     let sprites = pokemonStore.getSprites;
     let stats = pokemonStore.getStats;
     let sprs = []
